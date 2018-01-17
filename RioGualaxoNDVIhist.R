@@ -4,6 +4,10 @@ if (!require(tidyverse)) {
       library(tidyverse)
 }
 
+
+# This function reads an ENVI Standard ASCII output file and
+# transforms it to a tidy, long format data frame:
+
 tidy_ENVI_ASCII <- function(
       file,
       id=file, 
@@ -12,6 +16,7 @@ tidy_ENVI_ASCII <- function(
       sort_by=FALSE,
       decreasing=FALSE,
       tibble=TRUE) {
+      
       # Requires tidyverse
       
       # Read ENVI Standard ASCII output file
