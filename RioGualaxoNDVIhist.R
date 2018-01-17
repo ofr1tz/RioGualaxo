@@ -4,25 +4,70 @@ if (!require(tidyverse)) {
       library(tidyverse)
 }
 
-# Load ENVI ASCII output data
-oct15 <- read.table("2015-10-11 NDVI Maske Rio Gualaxo ASCII output.txt", skip=5)
-nov15 <- read.table("2015-11-12 NDVI Maske Rio Gualaxo ASCII output.txt", skip=5)
-aug17 <- read.table("2017-08-29 NDVI Maske Rio Gualaxo ASCII output.txt", skip=5)
+tidy_ENVI_ASCII <- function(
+      file,
+      id=file, 
+      value="value",
+      mask=FALSE,
+      sort_by=FALSE,
+      decreasing=FALSE,
+      tibble=TRUE) {
+      # Requires tidyverse
+      
+      # Read ENVI Standard ASCII output file
+      d <- read.table(file, skip=5)
+      
+      # Transform data frame
+      names(d) <- substring(names(d), first=2)
+      d <- d %>% 
+            rowid_to_column(var="y") %>%
+            mutate(id=id) %>%
+            gather(-id, -y, key="x", value="value", convert=TRUE) %>%
+            filter(value != mask) %>%
+            rename(!!value:=value) %>%
+            select(id, x, y, !!value)
+      
+      # Sort data frame if indicated
+      if(sort_by=="position") {
+            d <- arrange(d, x, y)
+      }
+      else if(sort_by=="value") {
+            d <- d[order(d[value], decreasing=decreasing),]
+            
+      }
+      
+      # Return tidy data as tibble or data frame 
+      if(tibble) return(as.tibble(d)) else return(d)
+}
 
-# Transform and consolidate data
-oct15 <- oct15 %>% mutate(Scene=ymd("2015-10-11")) %>% gather(-Scene, key="Position", value="NDVI") %>% filter(NDVI != 999)
-nov15 <- nov15 %>% mutate(Scene=ymd("2015-11-12")) %>% gather(-Scene, key="Position", value="NDVI") %>% filter(NDVI != 999)
-aug17 <- aug17 %>% mutate(Scene=ymd("2017-08-29")) %>% gather(-Scene, key="Position", value="NDVI") %>% filter(NDVI != 999)
+
+# Read and transform Rio Gualaxo masked NDVI data
+oct15 <- tidy_ENVI_ASCII(
+      file="2015-10-11 NDVI Maske Rio Gualaxo ASCII output.txt",
+      id="11.10.2015",
+      value="NDVI",
+      mask=999
+      )
+nov15 <- tidy_ENVI_ASCII(
+      file="2015-11-12 NDVI Maske Rio Gualaxo ASCII output.txt",
+      id="12.11.2015",
+      value="NDVI",
+      mask=999
+      )
+aug17 <- tidy_ENVI_ASCII(
+      file="2017-08-29 NDVI Maske Rio Gualaxo ASCII output.txt",
+      id="29.08.2017",
+      value="NDVI",
+      mask=999
+)
 dat <- bind_rows(oct15, nov15, aug17)
 
 # Plot histogram
 p <- ggplot(dat, aes(NDVI))+
       geom_histogram(binwidth=.005, col="darkgreen",fill="darkgreen")+
-      facet_grid(Scene~.)+
+      facet_grid(id~.)+
       coord_cartesian(xlim=c(0,1))+
+      ylab("Anzahl Pixel")
       theme_bw()
 
 print(p)
-
-# Write data
-# write.table(dat, "dat.txt")
