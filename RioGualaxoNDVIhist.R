@@ -67,12 +67,25 @@ aug17 <- tidy_ENVI_ASCII(
 )
 dat <- bind_rows(oct15, nov15, aug17)
 
-# Plot histogram
-p <- ggplot(dat, aes(NDVI))+
+# Construct histogram
+g <- ggplot(dat, aes(NDVI))+
       geom_histogram(binwidth=.005, col="darkgreen",fill="darkgreen")+
       facet_grid(scene_id~.)+
       coord_cartesian(xlim=c(0,1))+
       ylab("Anzahl Pixel")+
       theme_bw()
 
+# Add median line
+m <- dat %>%
+      group_by(scene_id) %>%
+      summarise(NDVI=round(median(NDVI),3)) %>%
+      mutate(text=paste("Median =", NDVI))
+m <- as.data.frame(m)
+
+p <- g+
+      geom_vline(mapping=aes(xintercept = NDVI), data=m, lty=5, lwd=1)+
+      geom_text(mapping=aes(label=text,x=NDVI+.03), y=200, hjust=0, size=4, data=m)
+      
+
+# Print
 print(p)
