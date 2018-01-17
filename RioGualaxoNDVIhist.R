@@ -6,7 +6,7 @@ if (!require(tidyverse)) {
 
 
 # This function reads an ENVI Standard ASCII output file and
-# transforms it to a tidy, long format data frame:
+# transforms it into a tidy long format data frame:
 
 tidy_ENVI_ASCII <- function(
       file,
@@ -23,8 +23,8 @@ tidy_ENVI_ASCII <- function(
       d <- read.table(file, skip=5)
       
       # Transform data frame
-      names(d) <- substring(names(d), first=2)
       d <- d %>% 
+            setNames(substring(names(d), first=2)) %>%
             rowid_to_column(var="y") %>%
             mutate(scene_id=scene_id) %>%
             gather(-scene_id, -y, key="x", value="value", convert=TRUE) %>%
