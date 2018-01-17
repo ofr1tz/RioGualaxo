@@ -72,7 +72,7 @@ p <- ggplot(dat, aes(NDVI))+
       geom_histogram(binwidth=.005, col="darkgreen",fill="darkgreen")+
       facet_grid(id~.)+
       coord_cartesian(xlim=c(0,1))+
-      ylab("Anzahl Pixel")
+      ylab("Anzahl Pixel")+
       theme_bw()
 
 print(p)
