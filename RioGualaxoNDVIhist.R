@@ -83,8 +83,8 @@ m <- dat %>%
 m <- as.data.frame(m)
 
 p <- g+
-      geom_vline(mapping=aes(xintercept = NDVI), data=m, lty=5, lwd=1)+
-      geom_text(mapping=aes(label=text,x=NDVI+.03), y=200, hjust=0, size=4, data=m)
+      geom_vline(mapping=aes(xintercept = NDVI), data=m, lty=5, lwd=1, col="grey35")+
+      geom_text(mapping=aes(label=text,x=NDVI+.02), y=200, hjust=0, size=3.75, col="grey35", data=m)
       
 
 # Print
