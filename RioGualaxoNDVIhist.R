@@ -10,7 +10,7 @@ if (!require(tidyverse)) {
 
 tidy_ENVI_ASCII <- function(
       file,
-      id=file, 
+      scene_id=file, 
       value="value",
       mask=FALSE,
       sort_by=FALSE,
@@ -26,11 +26,11 @@ tidy_ENVI_ASCII <- function(
       names(d) <- substring(names(d), first=2)
       d <- d %>% 
             rowid_to_column(var="y") %>%
-            mutate(id=id) %>%
-            gather(-id, -y, key="x", value="value", convert=TRUE) %>%
+            mutate(scene_id=scene_id) %>%
+            gather(-scene_id, -y, key="x", value="value", convert=TRUE) %>%
             filter(value != mask) %>%
             rename(!!value:=value) %>%
-            select(id, x, y, !!value)
+            select(scene_id, x, y, !!value)
       
       # Sort data frame if indicated
       if(sort_by=="position") {
@@ -49,19 +49,19 @@ tidy_ENVI_ASCII <- function(
 # Read and transform Rio Gualaxo masked NDVI data
 oct15 <- tidy_ENVI_ASCII(
       file="2015-10-11 NDVI Maske Rio Gualaxo ASCII output.txt",
-      id="11.10.2015",
+      scene_id="11.10.2015",
       value="NDVI",
       mask=999
       )
 nov15 <- tidy_ENVI_ASCII(
       file="2015-11-12 NDVI Maske Rio Gualaxo ASCII output.txt",
-      id="12.11.2015",
+      scene_id="12.11.2015",
       value="NDVI",
       mask=999
       )
 aug17 <- tidy_ENVI_ASCII(
       file="2017-08-29 NDVI Maske Rio Gualaxo ASCII output.txt",
-      id="29.08.2017",
+      scene_id="29.08.2017",
       value="NDVI",
       mask=999
 )
@@ -70,7 +70,7 @@ dat <- bind_rows(oct15, nov15, aug17)
 # Plot histogram
 p <- ggplot(dat, aes(NDVI))+
       geom_histogram(binwidth=.005, col="darkgreen",fill="darkgreen")+
-      facet_grid(id~.)+
+      facet_grid(scene_id~.)+
       coord_cartesian(xlim=c(0,1))+
       ylab("Anzahl Pixel")+
       theme_bw()
